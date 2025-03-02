@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPN Client - File Upload</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #141E30, #243B55);
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: 100px auto;
+            max-width: 600px;
+            padding: 30px;
+            background-color: rgba(0, 0, 0, 0.6);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #e0e0e0;
+        }
+        .file-info {
+            text-align: left;
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .file-info p {
+            margin: 5px 0;
+            color: #e0e0e0;
+        }
+        .report {
+            text-align: left;
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .report-section {
+            margin-bottom: 20px;
+        }
+        .report-section h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #ffc107;
+        }
+        .report-section p {
+            margin: 5px 0;
+            color: #e0e0e0;
+        }
+    </style>
+    <script>
+        async function uploadFiles() {
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            const messageDiv = document.getElementById('message');
+            const fileInfoDiv = document.getElementById('fileInfo');
+            fileInfoDiv.innerHTML = '';  // Clear previous file info
+
+            for (const file of fileInput.files) {
+                formData.append('files', file);
+                // Display file information
+                const fileInfo = document.createElement('p');
+                fileInfo.textContent = `File Name: ${file.name}, File Size: ${(file.size / 1024).toFixed(2)} KB`;
+                fileInfoDiv.appendChild(fileInfo);
+            }
+
+            try {
+                messageDiv.textContent = "You are the client, sending file to VPN server...";
+                
+                const response = await fetch('http://127.0.0.1:5000/api/upload', {  // Update with correct server address
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                console.log('Success:', result);
+                messageDiv.textContent = "File uploaded successfully!";
+                displayReport();
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.textContent = "Error uploading file.";
+            }
+        }
+
+        function displayReport() {
+            const reportSections = [
+                { title: "Introduction", content: "This project presents a VPN Client interface that allows users to upload files to a VPN server." },
+                { title: "Technical Specifications", content: "HTML provides the structure of the page, including file input and upload button. CSS adds styling to the page to enhance user experience and readability. JavaScript handles file upload functionality, including displaying file information and providing feedback messages." },
+                { title: "Key Features", content: "User-Friendly Interface: Simple and clean design to facilitate file uploads. Real-Time Feedback: Messages inform the user about the status of the file upload. File Information Display: Shows details such as file name and size before uploading." },
+                { title: "Usage Instructions", content: "File Selection: Users can select multiple files using the file input. File Upload: By clicking the upload button, files are sent to the VPN server. Feedback Messages: Display messages to inform users about the upload status." },
+                { title: "Conclusion", content: "This project demonstrates the integration of front-end and back-end technologies to achieve a seamless file upload process for a VPN client." }
+            ];
+
+            const reportDiv = document.getElementById('report');
+            reportDiv.innerHTML = '';  // Clear previous report sections
+
+            reportSections.forEach((section, index) => {
+                setTimeout(() => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'report-section';
+                    const sectionTitle = document.createElement('h2');
+                    sectionTitle.textContent = section.title;
+                    const sectionContent = document.createElement('p');
+                    sectionContent.textContent = section.content;
+                    sectionDiv.appendChild(sectionTitle);
+                    sectionDiv.appendChild(sectionContent);
+                    reportDiv.appendChild(sectionDiv);
+                }, index * 1000);  // Display each section one by one, 1 second apart
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>VPN Client - File Upload</h1>
+        <input type="file" id="fileInput" multiple>
+        <button onclick="uploadFiles()">Upload</button>
+        <div id="message" class="message"></div>
+        <div id="fileInfo" class="file-info"></div>
+        <div id="report" class="report"></div>
+    </div>
+</body>
+</html>
